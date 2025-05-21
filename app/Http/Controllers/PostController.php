@@ -45,4 +45,9 @@ class PostController extends Controller
 
         $post->update($data);
     }
+
+    public function destroy(Post $post): void
+    {
+        $post->delete();
+    }
 }

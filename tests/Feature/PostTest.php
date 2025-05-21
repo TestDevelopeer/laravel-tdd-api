@@ -3,6 +3,7 @@
 
 // use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Testing\File;
 use Illuminate\Support\Facades\Storage;
@@ -124,7 +125,7 @@ class PostTest extends TestCase
     }
 
     #[Test]
-    public function response_for_route_posts_show_is_view_post_show_with_single_post()
+    public function response_for_route_posts_show_is_view_post_show_with_single_post(): void
     {
         $this->withoutExceptionHandling();
         $post = Post::factory()->create();
@@ -136,5 +137,31 @@ class PostTest extends TestCase
         $res->assertSeeText('Show post page');
         $res->assertSeeText($post->title);
         $res->assertSeeText($post->description);
+    }
+
+    #[Test]
+    public function a_post_can_be_deleted_by_auth_user(): void
+    {
+        $this->withoutExceptionHandling();
+
+        $user = User::factory()->create();
+
+        $post = Post::factory()->create();
+
+        $res = $this->actingAs($user)->delete('/posts/' . $post->id);
+
+        $res->assertStatus(200);
+
+        $this->assertDatabaseCount('posts', 0);
+    }
+
+    #[Test]
+    public function a_post_can_be_deleted_by_only_auth_user(): void
+    {
+        $post = Post::factory()->create();
+
+        $res = $this->delete('/posts/' . $post->id);
+
+        $res->assertRedirect();
     }
 }

@@ -7,13 +7,19 @@ use App\Http\Requests\Post\UpdateRequest;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class PostController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $posts = Post::all();
         return view('posts.index', compact('posts'));
+    }
+
+    public function show(Post $post): View
+    {
+        return view('posts.show', compact('post'));
     }
 
     public function store(StoreRequest $request): void

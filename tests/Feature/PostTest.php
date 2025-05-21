@@ -122,4 +122,19 @@ class PostTest extends TestCase
 
         $res->assertSeeText($titles);
     }
+
+    #[Test]
+    public function response_for_route_posts_show_is_view_post_show_with_single_post()
+    {
+        $this->withoutExceptionHandling();
+        $post = Post::factory()->create();
+
+        $res = $this->get('/posts/' . $post->id);
+
+        $res->assertViewIs('posts.show');
+
+        $res->assertSeeText('Show post page');
+        $res->assertSeeText($post->title);
+        $res->assertSeeText($post->description);
+    }
 }

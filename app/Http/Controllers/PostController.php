@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
+    public function index()
+    {
+        $posts = Post::all();
+        return view('posts.index', compact('posts'));
+    }
+
     public function store(StoreRequest $request): void
     {
         $data = $request->validated();
@@ -22,7 +28,7 @@ class PostController extends Controller
         Post::create($data);
     }
 
-    public function update(UpdateRequest $request, Post $post)
+    public function update(UpdateRequest $request, Post $post): void
     {
         $data = $request->validated();
 

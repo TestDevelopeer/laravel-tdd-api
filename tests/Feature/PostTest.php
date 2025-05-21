@@ -6,6 +6,7 @@ use App\Models\Post;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Testing\File;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PostTest extends TestCase
@@ -18,7 +19,7 @@ class PostTest extends TestCase
         Storage::fake('local');
     }
 
-    /** @test */
+    #[Test]
     public function a_post_can_be_stored(): void
     {
         $this->withoutExceptionHandling();
@@ -46,7 +47,7 @@ class PostTest extends TestCase
         Storage::disk('local')->assertExists($post->image);
     }
 
-    /** @test */
+    #[Test]
     public function attr_title_is_required_for_storing_post(): void
     {
         $data = [
@@ -61,7 +62,7 @@ class PostTest extends TestCase
         $res->assertInvalid('title');
     }
 
-    /** @test */
+    #[Test]
     public function attr_image_is_file_for_storing_post(): void
     {
         $data = [
@@ -76,8 +77,8 @@ class PostTest extends TestCase
         $res->assertInvalid('image');
     }
 
-    /** @test */
-    public function a_post_can_be_updated()
+    #[Test]
+    public function a_post_can_be_updated(): void
     {
         $this->withoutExceptionHandling();
 
@@ -102,5 +103,23 @@ class PostTest extends TestCase
         $this->assertEquals('images/' . $file->hashName(), $updatedPost->image);
 
         $this->assertEquals($post->id, $updatedPost->id);
+    }
+
+    #[Test]
+    public function response_for_route_posts_index_is_view_post_index_with_posts(): void
+    {
+        $this->withoutExceptionHandling();
+
+        $posts = Post::factory(10)->create();
+
+        $res = $this->get('/posts');
+
+        $res->assertViewIs('posts.index');
+
+        $res->assertSeeText('Posts page');
+
+        $titles = $posts->pluck('title')->toArray();
+
+        $res->assertSeeText($titles);
     }
 }

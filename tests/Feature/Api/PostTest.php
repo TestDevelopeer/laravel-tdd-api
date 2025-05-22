@@ -57,9 +57,7 @@ class PostTest extends TestCase
                 'id' => $post->id,
                 'title' => $post->title,
                 'description' => $post->description,
-                'image' => $post->image,
-                'created_at' => $post->created_at->format('Y-m-d H:i:s'),
-                'updated_at' => $post->updated_at->format('Y-m-d H:i:s'),
+                'image' => $post->image
             ]
         ]);
     }
@@ -144,6 +142,56 @@ class PostTest extends TestCase
             ];
         })->toArray();
 
-        $res->assertJson($json);
+        $res->assertExactJson($json);
+    }
+
+    #[Test]
+    public function response_for_route_posts_show_is_get_single_post(): void
+    {
+        $this->withoutExceptionHandling();
+        $post = Post::factory()->create();
+
+        $res = $this->get('/api/posts/' . $post->id);
+
+        $res->assertJson([
+            'data' => [
+                'id' => $post->id,
+                'title' => $post->title,
+                'description' => $post->description,
+                'image' => $post->image
+            ]
+        ]);
+    }
+
+    #[Test]
+    public function a_post_can_be_deleted_by_auth_user(): void
+    {
+        $this->withoutExceptionHandling();
+
+        $user = User::factory()->create();
+
+        $post = Post::factory()->create();
+
+        $res = $this->actingAs($user)->delete('/api/posts/' . $post->id);
+
+        $res->assertStatus(200);
+
+        $this->assertDatabaseCount('posts', 0);
+
+        $res->assertJson([
+            'message' => 'Post deleted successfully',
+        ]);
+    }
+
+    #[Test]
+    public function a_post_can_be_deleted_by_only_auth_user(): void
+    {
+        $post = Post::factory()->create();
+
+        $res = $this->delete('/api/posts/' . $post->id);
+
+        $res->assertUnauthorized();
+
+        $this->assertDatabaseCount('posts', 1);
     }
 }

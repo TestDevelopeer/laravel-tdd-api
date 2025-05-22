@@ -7,6 +7,7 @@ use App\Http\Requests\Api\Post\StoreRequest;
 use App\Http\Requests\Api\Post\UpdateRequest;
 use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,6 +16,11 @@ class PostController extends Controller
     public function index(): AnonymousResourceCollection
     {
         return PostResource::collection(Post::all());
+    }
+
+    public function show(Post $post): PostResource
+    {
+        return PostResource::make($post);
     }
 
     public function store(StoreRequest $request): PostResource
@@ -43,5 +49,14 @@ class PostController extends Controller
         $post->update($data);
 
         return PostResource::make($post);
+    }
+
+    public function destroy(Post $post): JsonResponse
+    {
+        $post->delete();
+
+        return response()->json([
+            'message' => 'Post deleted successfully',
+        ]);
     }
 }

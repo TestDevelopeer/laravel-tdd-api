@@ -163,5 +163,7 @@ class PostTest extends TestCase
         $res = $this->delete('/posts/' . $post->id);
 
         $res->assertRedirect();
+
+        $this->assertDatabaseCount('posts', 1);
     }
 }
